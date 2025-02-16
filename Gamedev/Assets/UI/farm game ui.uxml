@@ -23,7 +23,8 @@
         </ui:VisualElement>
     </ui:VisualElement>
     <ui:VisualElement name="settingsPanel" style="flex-grow: 1; position: absolute; width: 50%; height: 50%; left: 25%; top: 25%; display: none; visibility: visible; background-image: url(&quot;project://database/Assets/Models/HUD/PNG/Blue/Double/button_square_border.png?fileID=2800000&amp;guid=ad78c91a2a1afe24ab5f7954660f8690&amp;type=3#button_square_border&quot;); -unity-slice-left: 20; -unity-slice-top: 20; -unity-slice-right: 20; -unity-slice-bottom: 20; -unity-background-scale-mode: stretch-to-fill;">
-        <ui:Slider label="Slider" high-value="100" direction="Horizontal" name="VolumeSlider" style="height: 20%; width: 50%;" />
-        <ui:Slider label="Slider" high-value="100" direction="Horizontal" name="BrightnessSlider" style="height: 20%; width: 50%;" />
+        <ui:Label tabindex="-1" text="SETTINGS" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Settings" style="align-items: stretch; position: relative; left: auto; flex-direction: column; justify-content: space-between; align-self: center; font-size: 50px; -unity-font: url(&quot;project://database/Assets/Models/HUD/Font/Kenney%20Future%20Narrow.ttf?fileID=12800000&amp;guid=412989d0bbf56bd4b84adf3deb9ec809&amp;type=3#Kenney Future Narrow&quot;); -unity-font-style: bold; -unity-text-align: upper-left; text-overflow: clip; -unity-text-outline-width: 0; -unity-text-outline-color: rgba(0, 0, 0, 0); color: rgb(24, 134, 137); text-shadow: 40px 40px 0 rgba(0, 0, 0, 0);" />
+        <ui:Slider label="Volume" high-value="100" direction="Horizontal" name="VolumeSlider" style="height: 20%; width: 50%;" />
+        <ui:Slider label="Brightness" high-value="100" direction="Horizontal" name="BrightnessSlider" style="height: 20%; width: 50%;" />
     </ui:VisualElement>
 </ui:UXML>

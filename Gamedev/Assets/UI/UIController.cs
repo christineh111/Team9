@@ -6,6 +6,7 @@ using Newtonsoft.Json.Bson;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UIElements;
+using Cinemachine;
 
 
 public class UIController : MonoBehaviour
@@ -38,6 +39,10 @@ public class UIController : MonoBehaviour
 
     //volume slider
     public Slider volumeSlider;
+
+    //Camera Switch Button
+    public Camera MainPOV; 
+    public Camera FarmPOV;
 
     private void Awake()
     {
@@ -95,6 +100,28 @@ public class UIController : MonoBehaviour
             Debug.LogError("VolumeSlider not found in the UI Document. Check the name and hierarchy.");
         }
         */
+
+        //Check Camera
+        if (FarmPOV != null)
+        {
+            FarmPOV.gameObject.SetActive(false);
+            Debug.Log("FarmPOV disabled initially.");
+        }
+        else
+        {
+            Debug.LogError("FarmPOV is not assigned.");
+        }
+
+        // Ensure MainPOV is enabled initially
+        if (MainPOV != null)
+        {
+            MainPOV.gameObject.SetActive(true);
+            Debug.Log("MainPOV enabled initially.");
+        }
+        else
+        {
+            Debug.LogError("MainPOV is not assigned.");
+        }
 
     }
 
@@ -233,6 +260,17 @@ public class UIController : MonoBehaviour
     private void OnMoveButtonClicked()
     {
         Debug.Log("Move Button Clicked");
+        if (MainPOV != null && FarmPOV != null)
+        {
+            bool isFarmPOVActive = FarmPOV.gameObject.activeSelf;
+
+            // Toggle camera states
+            MainPOV.gameObject.SetActive(isFarmPOVActive);
+            FarmPOV.gameObject.SetActive(!isFarmPOVActive);
+
+            UnityEngine.Debug.Log(isFarmPOVActive ? "MainPOV" : "FarmPOV");
+        }
+        
     }
 
     private void OnShopButtonClicked()
