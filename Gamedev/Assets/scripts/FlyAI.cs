@@ -59,6 +59,7 @@ public class FlyAI : MonoBehaviour
 
                 // TODO: Target crops that have more damage
                 // TODO: Target crops that are closer to being finished
+                // TODO: make a new fly once one is killed
             }
         }
 
