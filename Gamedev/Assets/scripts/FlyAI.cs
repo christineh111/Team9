@@ -4,13 +4,11 @@ using UnityEngine;
 
 public class FlyAI : MonoBehaviour
 {
-    public GameObject flyPrefab; // Prefab for individual fly (if you need a visual representation)
+    public GameObject fly; // Reference to the existing fly in the scene
     public float spawnRadius = 5f;
     public float attackRange = 3f;
     public float moveSpeed = 2f;
-    public ParticleSystem swarmParticleSystem; // The particle system managing the flies
 
-    private GameObject fly; // The single fly instance
     private Dictionary<string, int> cropValues = new Dictionary<string, int>
     {
         {"Carrot", 1}, {"Broccoli", 2}, {"Cauliflower", 3},
@@ -20,33 +18,52 @@ public class FlyAI : MonoBehaviour
 
     void Start()
     {
-        // Spawn one fly when the game starts
-        SpawnFly();
+        // Ensure the fly is in the scene and set to inactive initially
+        if (fly != null)
+        {
+            fly.SetActive(true); // Make sure the fly is inactive at the start
+        }
     }
 
     void Update()
     {
         FindTargetCrop();
         MoveTowardsTarget();
+
+        // Activate the fly only if it is not active and a crop is found
+        if (targetCrop != null && fly != null && !fly.activeInHierarchy)
+        {
+            Debug.Log("Activating fly towards target crop: " + targetCrop.name); // Log the activation of the fly with the target crop's name
+
+            ActivateFly();
+        }
+        else if (targetCrop == null && fly != null && fly.activeInHierarchy)
+        {
+            DeactivateFly();
+        }
     }
 
     void FindTargetCrop()
     {
-        GameObject[] crops = GameObject.FindGameObjectsWithTag("Broccoli"); // Example for "Broccoli"
+        // Gather all crops in the scene with tags that match the crop dictionary
         int highestValue = 0;
         GameObject bestCrop = null;
 
-        foreach (GameObject crop in crops)
+        foreach (var cropValue in cropValues)
         {
-            // Check if crop's tag matches any of the crops in the dictionary
-            if (cropValues.ContainsKey(crop.tag) && cropValues[crop.tag] > highestValue)
+            GameObject[] crops = GameObject.FindGameObjectsWithTag(cropValue.Key); // Use the crop name as the tag
+            foreach (GameObject crop in crops)
             {
-                highestValue = cropValues[crop.tag];
-                bestCrop = crop;
+                // If this crop has a higher value, select it as the best target
+                if (cropValues[crop.tag] > highestValue)
+                {
+                    highestValue = cropValues[crop.tag];
+                    bestCrop = crop;
+                }
             }
         }
 
-        targetCrop = bestCrop;
+        targetCrop = bestCrop; // Set the best crop as the target
     }
 
     void MoveTowardsTarget()
@@ -58,11 +75,21 @@ public class FlyAI : MonoBehaviour
         fly.transform.position = Vector3.MoveTowards(fly.transform.position, targetCrop.transform.position, moveSpeed * Time.deltaTime);
     }
 
-    void SpawnFly()
+    // Activate the fly
+    void ActivateFly()
     {
-        // Spawn one fly at a random position around the spawn radius
-        Vector3 spawnPosition = transform.position + Random.insideUnitSphere * spawnRadius;
-        spawnPosition.y = transform.position.y; // Keep it at the same height level
-        fly = Instantiate(flyPrefab, spawnPosition, Quaternion.identity); // Instantiate the fly
+        if (fly != null)
+        {
+            fly.SetActive(true); // Set the fly active when a crop is found
+        }
+    }
+
+    // Deactivate the fly
+    void DeactivateFly()
+    {
+        if (fly != null)
+        {
+            fly.SetActive(false); // Set the fly inactive when no crop is found
+        }
     }
 }
