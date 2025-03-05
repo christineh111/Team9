@@ -119,4 +119,42 @@ public class FlyAI : MonoBehaviour
     {
         Destroy(gameObject); 
     }
+
+    // Fly moves away from destroyed plant
+    public void OnPlantDestroyed(GameObject destroyedPlant)
+    {
+        StartCoroutine(MoveAwayFromDestroyedPlant(destroyedPlant));
+    }
+
+    // Moves the fly
+    private IEnumerator MoveAwayFromDestroyedPlant(GameObject destroyedPlant)
+    {
+        // Finds direction to move
+        Vector3 awayFromPlant = fly.transform.position - destroyedPlant.transform.position;
+
+        // Sets the y value
+        awayFromPlant.y = 0f;
+        awayFromPlant.Normalize();
+
+        // Move distance and time
+        float moveAwayDuration = 20f; 
+        float timeElapsed = 0f;
+
+        while (timeElapsed < moveAwayDuration)
+        {
+            moveSpeed = 20f;
+            // Moves to new position
+            fly.transform.position += awayFromPlant * moveSpeed * Time.deltaTime;
+
+            // Fixes the y value for fly to float
+            Vector3 currentPosition = fly.transform.position;
+            currentPosition.y = 4;
+            fly.transform.position = currentPosition;
+
+            timeElapsed += Time.deltaTime;
+            moveSpeed = 10f;
+            yield return null;
+        }
+    }
+
 }

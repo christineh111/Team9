@@ -25,6 +25,10 @@ public class BroccoliGrowth : MonoBehaviour
 
     public Broccoli broccoliScript;
 
+    // Fly interactions
+    public int plantHealth = 10;
+    private bool isBeingDamaged = false;
+
     // interactions
     private GameObject player;
     public float interactionRange = 5f;
@@ -276,5 +280,43 @@ public class BroccoliGrowth : MonoBehaviour
         fullPlant.SetActive(false);
         progressCanvas.gameObject.SetActive(false);
         progressCircle.fillAmount = 0f;
+    }
+
+    // Fly interactions
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("FlySwarm") && !isBeingDamaged)
+        {
+            isBeingDamaged = true;
+            StartCoroutine(ApplyFlyDamage());
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("FlySwarm"))
+        {
+            isBeingDamaged = false;
+        }
+    }
+    private IEnumerator ApplyFlyDamage()
+    {
+        while (isBeingDamaged)
+        {
+            plantHealth -= 5;
+
+            // Reset plot if health is 0
+            if (plantHealth <= 0)
+            {
+                growingPhase = 0;
+                growing = false;
+                progressCanvas.gameObject.SetActive(false); // Hide progress circle
+                growingPhase = 0;   // Reset phase
+                ResetPlot();        // Reset plot
+                yield break;
+            }
+
+            yield return new WaitForSeconds(5f);
+        }
     }
 }
