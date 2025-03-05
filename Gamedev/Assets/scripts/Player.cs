@@ -6,11 +6,11 @@ public class Player : MonoBehaviour {
     [SerializeField] private GameInput gameInput;
 
     private bool isWalking;
-    private Rigidbody rigidbody;
+    private Rigidbody rb;
 
     private void Awake()
     {
-        rigidbody = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
     }
 
     private void FixedUpdate()
@@ -26,7 +26,7 @@ public class Player : MonoBehaviour {
             moveDir.Normalize();
 
             // Apply movement using Rigidbody
-            rigidbody.velocity = moveDir * moveSpeed;
+            rb.velocity = moveDir * moveSpeed;
 
             // Rotate the player smoothly
             float rotateSpeed = 10f;
@@ -35,7 +35,7 @@ public class Player : MonoBehaviour {
         else
         {
             // Stop movement if no input
-            rigidbody.velocity = Vector3.zero;
+            rb.velocity = Vector3.zero;
         }
     }
 
