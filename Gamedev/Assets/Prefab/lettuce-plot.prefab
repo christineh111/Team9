@@ -392,7 +392,7 @@ GameObject:
   - component: {fileID: 315744190320986763}
   m_Layer: 0
   m_Name: lettuce-plot
-  m_TagString: Untagged
+  m_TagString: Mushroom
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -504,7 +504,13 @@ MonoBehaviour:
   progressCanvas: {fileID: 1714881492080734829}
   progressCircle: {fileID: 2100006746418713311}
   shovel: {fileID: 0}
+  watering_can: {fileID: 0}
+  sickle: {fileID: 0}
+  lettuce: {fileID: 0}
   playerAnimator: {fileID: 0}
+  interactionRange: 5
+  uiController: {fileID: 0}
+  lettuceScript: {fileID: 0}
 --- !u!1 &8116874307372090474
 GameObject:
   m_ObjectHideFlags: 0

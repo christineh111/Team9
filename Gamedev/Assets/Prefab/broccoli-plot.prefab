@@ -441,7 +441,7 @@ GameObject:
   - component: {fileID: 4691893406088254234}
   m_Layer: 0
   m_Name: broccoli-plot
-  m_TagString: Untagged
+  m_TagString: Broccoli
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -553,7 +553,13 @@ MonoBehaviour:
   progressCanvas: {fileID: 2207021489687590210}
   progressCircle: {fileID: 4753335094788020265}
   shovel: {fileID: 0}
+  watering_can: {fileID: 0}
+  sickle: {fileID: 0}
+  broccoli: {fileID: 0}
   playerAnimator: {fileID: 0}
+  broccoliScript: {fileID: 0}
+  interactionRange: 5
+  uiController: {fileID: 0}
 --- !u!1 &7079096099711395170
 GameObject:
   m_ObjectHideFlags: 0
