@@ -106,7 +106,18 @@ public class BroccoliGrowth : MonoBehaviour
             isFarmingMode = false;
             progressCanvas.gameObject.SetActive(false); // Hide progress circle
             growingPhase = 0;   // Reset phase
+            StopAllCoroutines();
             ResetPlot();        // Reset plot
+        }
+
+        // checks fly health
+        if (plantHealth <= 0 && growing)
+        {
+            growing = false;
+            growingPhase = 0;
+            StopAllCoroutines();
+            NotifyFly();
+            ResetPlot();
         }
 
         if (FarmManager.IsHolding)
@@ -148,6 +159,9 @@ public class BroccoliGrowth : MonoBehaviour
 
         if (growingPhase == 0)   // Planting Phase
         {
+            // Reset health
+            plantHealth = 10;
+
             // Planting shovel animation
             if (playerAnimator != null)
                 playerAnimator.SetBool("isPlanting", true);
@@ -280,6 +294,7 @@ public class BroccoliGrowth : MonoBehaviour
         fullPlant.SetActive(false);
         progressCanvas.gameObject.SetActive(false);
         progressCircle.fillAmount = 0f;
+        isBeingDamaged = false;
     }
 
     // Fly interactions
@@ -308,15 +323,24 @@ public class BroccoliGrowth : MonoBehaviour
             // Reset plot if health is 0
             if (plantHealth <= 0)
             {
-                growingPhase = 0;
                 growing = false;
-                progressCanvas.gameObject.SetActive(false); // Hide progress circle
                 growingPhase = 0;   // Reset phase
+                StopAllCoroutines();
                 ResetPlot();        // Reset plot
+                NotifyFly();
                 yield break;
             }
 
             yield return new WaitForSeconds(5f);
+        }
+    }
+
+    private void NotifyFly()
+    {
+        FlyAI fly = FindObjectOfType<FlyAI>();
+        if (fly != null)
+        {
+            fly.OnPlantDestroyed(this.gameObject);
         }
     }
 }

@@ -29,15 +29,6 @@ public class FlyAI : MonoBehaviour
     {
         FindTargetCrop();
         MoveTowardsTarget();
-
-        if (targetCrop != null && fly != null && !fly.activeInHierarchy)
-        {
-            ActivateFly();
-        }
-        else if (targetCrop == null && fly != null && fly.activeInHierarchy)
-        {
-            DeactivateFly();
-        }
     }
 
     void FindTargetCrop()
