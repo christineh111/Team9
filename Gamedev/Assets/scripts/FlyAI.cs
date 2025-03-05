@@ -9,6 +9,7 @@ public class FlyAI : MonoBehaviour
     public float attackRange = 3f;
     public float moveSpeed = 2f;
     public int health = 20;
+    public float respawnTime = 10f;
 
     private Dictionary<string, int> cropValues = new Dictionary<string, int>
     {
@@ -117,7 +118,32 @@ public class FlyAI : MonoBehaviour
     // Fly dies when reaching 0 health
     private void Die()
     {
-        Destroy(gameObject); 
+        StartCoroutine(RespawnFly());
+    }
+
+    // Respawns fly after it is killed
+    private IEnumerator RespawnFly()
+    {
+        // Hide flies
+        fly.GetComponent<Renderer>().enabled = false;
+        fly.GetComponent<Collider>().enabled = false;
+
+        yield return new WaitForSeconds(respawnTime);
+
+        // Reset health
+        health = 20;
+        Debug.Log("Fly health reset to 20.");
+
+        // Calculate new spawn position
+        Vector3 respawnPosition = transform.position + (Random.insideUnitSphere * spawnRadius);
+        respawnPosition.y = 4;
+
+        // Move fly to respawn position
+        fly.transform.position = respawnPosition;
+
+        // Show flies
+        fly.GetComponent<Renderer>().enabled = true;
+        fly.GetComponent<Collider>().enabled = true;
     }
 
     // Fly moves away from destroyed plant
