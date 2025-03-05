@@ -70,9 +70,20 @@ public class FlyAI : MonoBehaviour
     {
         if (targetCrop == null || fly == null) return;
 
-        // Move the fly towards the target crop
+        // Calculate direction to the target crop
         Vector3 directionToTarget = targetCrop.transform.position - fly.transform.position;
+
+        // Ensure the fly does not sink below the ground level
+        if (fly.transform.position.y < 4)  // Assuming ground level is at y = 0
+        {
+            fly.transform.position = new Vector3(fly.transform.position.x, 4, fly.transform.position.z);
+        }
+
+        // Move the fly towards the target crop, but keep the y position above the ground
         fly.transform.position = Vector3.MoveTowards(fly.transform.position, targetCrop.transform.position, moveSpeed * Time.deltaTime);
+
+        // Optionally: Ensure fly stays above the ground by clamping the y position
+        fly.transform.position = new Vector3(fly.transform.position.x, Mathf.Max(fly.transform.position.y, 0f), fly.transform.position.z);
     }
 
     // Activate the fly
