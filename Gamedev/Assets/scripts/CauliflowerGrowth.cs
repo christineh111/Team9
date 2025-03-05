@@ -120,6 +120,15 @@ public class CauliflowerGrowth : MonoBehaviour
             ResetPlot();
         }
 
+        if (FarmManager.IsHolding)
+        {
+            FarmManager.IsAnimationPlaying = true;
+        }
+        else
+        {
+            FarmManager.IsAnimationPlaying = false;
+        }
+
     }
 
     // Player interacts with plot
