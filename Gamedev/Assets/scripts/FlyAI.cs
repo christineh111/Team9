@@ -8,6 +8,7 @@ public class FlyAI : MonoBehaviour
     public float spawnRadius = 5f;
     public float attackRange = 3f;
     public float moveSpeed = 2f;
+    public int health = 20;
 
     private Dictionary<string, int> cropValues = new Dictionary<string, int>
     {
@@ -100,5 +101,22 @@ public class FlyAI : MonoBehaviour
         {
             fly.SetActive(false); 
         }
+    }
+
+    // Damage fly
+    public void TakeDamage(int damage)
+    {
+        health -= damage;
+
+        if (health <= 0)
+        {
+            Die();
+        }
+    }
+
+    // Fly dies when reaching 0 health
+    private void Die()
+    {
+        Destroy(gameObject); 
     }
 }
