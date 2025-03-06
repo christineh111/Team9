@@ -6,12 +6,11 @@ using System.Collections.Generic;
 public class NPCInteraction : MonoBehaviour
 {
     public TextMeshProUGUI npcTextBox; // Text for orders above NPC head
-    public GameObject npcPrefab; // NPC model
-
-    public Transform spawnPoint;  // Off-screen start position
+    public Transform spawnPoint;  // Spawn position
 
     public float walkSpeed = 20f;
-    public float pauseTime = 120f; // 2 minutes
+    public float pauseTime = 5f; // 2 minutes
+    public GameObject npcPrefab; // NPC model
 
     private Animator animator; // Reference to the Animator
     private bool orderComplete = false; // Flag to track order completion
@@ -42,31 +41,37 @@ public class NPCInteraction : MonoBehaviour
 
     IEnumerator CustomerRoutine()
     {
-        // Spawn off-screen
-        transform.position = spawnPoint.position;
-
-        // Walk to ordering position 
-        yield return TurnAndMove(0, 70f);
-
-        // Generate Order & Display Text
-        GenerateRequest();
-        UpdateNPCText();
-
-        float timer = 0f;
-
-        // Waits for complete order or until timer runs out
-        while (!orderComplete && timer < 50f)
+        while (true)
         {
-            timer += Time.deltaTime; 
-            yield return null;
+            // Reset NPC state
+            orderComplete = false;
+            deliveredItems.Clear();
+            transform.SetPositionAndRotation(spawnPoint.position, Quaternion.identity);
+
+            // Walk to ordering position 
+            yield return TurnAndMove(0, 70f);
+
+            // Generate Order & Display Text
+            GenerateRequest();
+            UpdateNPCText();
+
+            float timer = 0f;
+
+            // Waits for complete order or until timer runs out
+            while (!orderComplete && timer < 10f)
+            {
+                timer += Time.deltaTime;
+                yield return null;
+            }
+
+            // NPC walks away after order completion
+            yield return TurnAndMove(-90, 10f);
+            yield return TurnAndMove(-90, 70f);
+
+            // Pause before respawning 
+            // TODO: Need to update for amount of NPCs
+            yield return new WaitForSeconds(pauseTime);
         }
-
-        // NPC walks away after order completion
-        yield return TurnAndMove(-90, 10f);
-        yield return TurnAndMove(-90, 70f);
-
-        // Despawn NPC
-        Destroy(gameObject);
     }
 
     IEnumerator TurnAndMove(float turnAngle, float distance)
@@ -90,6 +95,7 @@ public class NPCInteraction : MonoBehaviour
 
     public void Interact(string item)
     {
+        Debug.Log("Player gave: " + item);
         if (requestedItems.Contains(item))
         {
             requestedItems.Remove(item);
@@ -124,7 +130,6 @@ public class NPCInteraction : MonoBehaviour
         }
     }
 
-
     void GenerateRequest()
     {
         requestedItems.Clear();
@@ -146,7 +151,8 @@ public class NPCInteraction : MonoBehaviour
             int requestCount = Random.Range(1, Mathf.Min(5, cropsInScene.Count + 1));
             for (int i = 0; i < requestCount; i++)
             {
-                requestedItems.Add(cropsInScene[Random.Range(0, cropsInScene.Count)]);
+                string selectedCrop = cropsInScene[Random.Range(0, cropsInScene.Count)];
+                requestedItems.Add(selectedCrop);
             }
         }
     }
