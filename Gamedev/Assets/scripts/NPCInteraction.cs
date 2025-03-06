@@ -15,15 +15,17 @@ public class NPCInteraction : MonoBehaviour
 
     private Animator animator; // Reference to the Animator
     private bool orderComplete = false; // Flag to track order completion
+    public UIController uiController; // Reference to UIController
+    public int orderAmount = 0;
 
     private Dictionary<string, int> cropRewards = new Dictionary<string, int>
     {
-        { "Carrot", 1 },
-        { "Broccoli", 2 },
-        { "Cauliflower", 3 },
-        { "Sunflower", 4 },
-        { "Corn", 5 },
-        { "Mushrooms", 6 }
+        { "Carrot", 2 },
+        { "Broccoli", 5 },
+        { "Cauliflower", 10 },
+        { "Sunflower", 17 },
+        { "Corn", 12 },
+        { "Mushrooms", 15 }
     };
 
     private List<string> requestedItems = new List<string>(); // What the NPC wants
@@ -50,11 +52,14 @@ public class NPCInteraction : MonoBehaviour
         GenerateRequest();
         UpdateNPCText();
 
-        while (!orderComplete)
-        {
-            yield return null; 
-        }
+        float timer = 0f;
 
+        // Waits for complete order or until timer runs out
+        while (!orderComplete && timer < 50f)
+        {
+            timer += Time.deltaTime; 
+            yield return null;
+        }
 
         // NPC walks away after order completion
         yield return TurnAndMove(-90, 10f);
@@ -94,7 +99,6 @@ public class NPCInteraction : MonoBehaviour
             // Check if all requested items are delivered
             if (requestedItems.Count == 0)
             {
-                Debug.Log("order compelete");
                 CompleteOrder();
             }
         }
@@ -102,8 +106,24 @@ public class NPCInteraction : MonoBehaviour
 
     void CompleteOrder()
     {
-        orderComplete = true; 
+        orderComplete = true;
+
+        // Calculate order amount
+        orderAmount = 0;
+        foreach (string item in deliveredItems)
+        {
+            if (cropRewards.ContainsKey(item))
+            {
+                orderAmount += cropRewards[item];
+            }
+        }
+
+        if (uiController != null)
+        {
+            UIController.Instance.AddCoins(orderAmount);
+        }
     }
+
 
     void GenerateRequest()
     {
