@@ -37,6 +37,7 @@ public class BroccoliGrowth : MonoBehaviour
         {
             player = GameObject.Find("player");
         }
+
         if (playerAnimator == null)
         {
             if(player != null)

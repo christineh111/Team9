@@ -39,7 +39,8 @@ public class CauliflowerGrowth : MonoBehaviour
         }
         if (playerAnimator == null)
         {
-            playerAnimator = FindObjectOfType<Animator>(); // Ensure player animator is found
+            if (player != null)
+                playerAnimator = player.GetComponent<Animator>();
         }
 
         if (shovel == null)
