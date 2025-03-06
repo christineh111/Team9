@@ -19,7 +19,6 @@ public class NPCInteraction : MonoBehaviour
 
     private List<string> requestedItems = new List<string>(); // What the NPC wants
     private List<string> deliveredItems = new List<string>(); // What we've given them so far
-    private float requestDuration = 120f; // 2 minutes before NPC leaves
 
     void Start()
     {
@@ -31,12 +30,28 @@ public class NPCInteraction : MonoBehaviour
     {
     }
 
-    void Interact()
+    // Method for delivering an item to the NPC
+    public void Interact(string item)
     {
+        if (requestedItems.Contains(item))
+        {
+            requestedItems.Remove(item); // Remove the item from the requested list
+            deliveredItems.Add(item);   // Add it to the delivered list
+
+            UpdateNPCText();  // Update the NPC text after delivery
+
+            // Check if the NPC's order is complete
+            if (requestedItems.Count == 0)
+            {
+                CompleteOrder();
+            }
+        }
     }
 
+    // Complete the NPC's order and reward the player
     void CompleteOrder()
     {
+        Debug.Log("Order complete");
     }
 
     void GenerateRequest()

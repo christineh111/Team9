@@ -2,7 +2,13 @@ using UnityEngine;
 
 public class Broccoli : MonoBehaviour
 {
-    public GameObject broccoli;  
+    public GameObject broccoli;
+    private NPCInteraction npcInteraction;
+
+    void Start()
+    {
+        npcInteraction = FindObjectOfType<NPCInteraction>();
+    }
 
     void Update()
     {
@@ -21,6 +27,12 @@ public class Broccoli : MonoBehaviour
                     // gives the vegtable to npc
                     broccoli.SetActive(false);
                     FarmManager.IsHolding = false;
+
+                    // Updates NPC
+                    if (npcInteraction != null)
+                    {
+                        npcInteraction.Interact("Broccoli");
+                    }
                 }
             }
         }
