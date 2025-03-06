@@ -7,6 +7,12 @@ TagManager:
   - FlySwarm
   - NPC
   - InventoryUI
+  - Broccoli
+  - Carrot
+  - Cauliflower
+  - Sunflower
+  - Corn
+  - Mushroom
   layers:
   - Default
   - TransparentFX

@@ -192,7 +192,7 @@ GameObject:
   - component: {fileID: 5952967466786293162}
   m_Layer: 0
   m_Name: watermelon-plot
-  m_TagString: Untagged
+  m_TagString: Sunflower
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -303,7 +303,13 @@ MonoBehaviour:
   fullPlant: {fileID: 4057296696848896184}
   progressCanvas: {fileID: 5297343116517980899}
   progressCircle: {fileID: 961732672638543353}
+  interactionRange: 5
+  uiController: {fileID: 0}
+  watermelonScript: {fileID: 0}
   shovel: {fileID: 0}
+  watering_can: {fileID: 0}
+  sickle: {fileID: 0}
+  watermelon: {fileID: 0}
   playerAnimator: {fileID: 0}
 --- !u!1 &3095284190853952388
 GameObject:
