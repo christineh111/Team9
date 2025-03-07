@@ -9,13 +9,13 @@ public class NPCInteraction : MonoBehaviour
     public Transform spawnPoint;  // Spawn position
 
     public float walkSpeed = 20f;
-    public float pauseTime = 5f; // 2 minutes
     public GameObject npcPrefab; // NPC model
 
     private Animator animator; // Reference to the Animator
     private bool orderComplete = false; // Flag to track order completion
     public UIController uiController; // Reference to UIController
     public int orderAmount = 0;
+    public Transform leavePoint;
 
     private Dictionary<string, int> cropRewards = new Dictionary<string, int>
     {
@@ -48,6 +48,10 @@ public class NPCInteraction : MonoBehaviour
             deliveredItems.Clear();
             transform.SetPositionAndRotation(spawnPoint.position, Quaternion.identity);
 
+            // Random delay
+            float randomDelay = Random.Range(1f, 5f);
+            yield return new WaitForSeconds(randomDelay);
+
             // Walk to ordering position 
             yield return TurnAndMove(0, 70f);
 
@@ -58,19 +62,20 @@ public class NPCInteraction : MonoBehaviour
             float timer = 0f;
 
             // Waits for complete order or until timer runs out
-            while (!orderComplete && timer < 10f)
+            while (!orderComplete && timer < 30f)
             {
                 timer += Time.deltaTime;
                 yield return null;
             }
 
             // NPC walks away after order completion
-            yield return TurnAndMove(-90, 10f);
+            yield return MoveToPosition(leavePoint.position);
             yield return TurnAndMove(-90, 70f);
 
             // Pause before respawning 
             // TODO: Need to update for amount of NPCs
-            yield return new WaitForSeconds(pauseTime);
+            //float pauseTime = Random.Range(1f, 6f); 
+            //yield return new WaitForSeconds(pauseTime);
         }
     }
 
@@ -79,6 +84,27 @@ public class NPCInteraction : MonoBehaviour
         transform.Rotate(0, turnAngle, 0); // Rotate NPC
         Vector3 startPos = transform.position; // current pos
         Vector3 targetPos = startPos + transform.forward * distance;
+
+        // Set walking animation
+        animator.SetBool("isWalking", true);
+
+        while (Vector3.Distance(transform.position, targetPos) > 0.1f)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, walkSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        // Stop walking animation
+        animator.SetBool("isWalking", false);
+    }
+
+    // Moves NPC to a specific position
+    IEnumerator MoveToPosition(Vector3 targetPos)
+    {
+        // Rotate towards the target direction
+        Vector3 direction = (targetPos - transform.position).normalized;
+        Quaternion targetRotation = Quaternion.LookRotation(direction);
+        transform.rotation = targetRotation;
 
         // Set walking animation
         animator.SetBool("isWalking", true);
