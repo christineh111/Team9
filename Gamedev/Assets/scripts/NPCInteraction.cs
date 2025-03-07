@@ -30,29 +30,52 @@ public class NPCInteraction : MonoBehaviour
     private List<string> requestedItems = new List<string>(); // What the NPC wants
     private List<string> deliveredItems = new List<string>(); // What we've given them so far
 
+    private Coroutine customerRoutineCoroutine;
+
     void Start()
     {
         if (animator == null && npcPrefab != null)
         {
             animator = npcPrefab.GetComponent<Animator>();
         }
-        StartCoroutine(CustomerRoutine());
+
+        // Start the customer order
+        customerRoutineCoroutine = StartCoroutine(CustomerRoutine());
+    }
+
+    void Update()
+    {
+        // Check for night phase
+        if (uiController.isNightPhase)
+        {
+            Debug.Log("is night NPC");
+            // Reset NPC state during night phase
+            if (customerRoutineCoroutine != null)
+            {
+                StopCoroutine(customerRoutineCoroutine);
+                customerRoutineCoroutine = null;
+            }
+            ResetNPC(); 
+        }
+        else if (!uiController.isNightPhase && customerRoutineCoroutine == null)
+        {
+            // Start the routine again on new day
+            customerRoutineCoroutine = StartCoroutine(CustomerRoutine());
+        }
     }
 
     IEnumerator CustomerRoutine()
     {
         while (true)
         {
-            // Reset NPC state
-            orderComplete = false;
-            deliveredItems.Clear();
-            transform.SetPositionAndRotation(spawnPoint.position, Quaternion.identity);
+            // Reset NPC state at the start
+            ResetNPC();
 
-            // Random delay
+            // Random delay before the NPC starts walking
             float randomDelay = Random.Range(1f, 5f);
             yield return new WaitForSeconds(randomDelay);
 
-            // Walk to ordering position 
+            // Walk to ordering position
             yield return TurnAndMove(0, 70f);
 
             // Generate Order & Display Text
@@ -61,11 +84,16 @@ public class NPCInteraction : MonoBehaviour
 
             float timer = 0f;
 
-            // Waits for complete order or until timer runs out
+            // Wait for order completion or until timer runs out
             while (!orderComplete && timer < 30f)
             {
                 timer += Time.deltaTime;
                 yield return null;
+            }
+
+            if (!orderComplete)
+            {
+                npcTextBox.text = "Oh well!";
             }
 
             // NPC walks away after order completion
@@ -73,10 +101,18 @@ public class NPCInteraction : MonoBehaviour
             yield return TurnAndMove(-90, 70f);
 
             // Pause before respawning 
-            // TODO: Need to update for amount of NPCs
-            //float pauseTime = Random.Range(1f, 6f); 
-            //yield return new WaitForSeconds(pauseTime);
+            float pauseTime = Random.Range(1f, 6f);
+            yield return new WaitForSeconds(pauseTime);
         }
+    }
+
+    void ResetNPC()
+    {
+        // Stop the NPC and reset all relevant states
+        transform.SetPositionAndRotation(spawnPoint.position, Quaternion.identity);
+        npcTextBox.text = "";
+        orderComplete = false;
+        deliveredItems.Clear();
     }
 
     IEnumerator TurnAndMove(float turnAngle, float distance)
