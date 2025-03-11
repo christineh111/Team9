@@ -93,6 +93,7 @@ public class NPCInteraction : MonoBehaviour
             if (!orderComplete)
             {
                 npcTextBox.text = "Oh well!";
+                requestedItems.Clear();
             }
 
             // NPC walks away after order completion
@@ -154,7 +155,7 @@ public class NPCInteraction : MonoBehaviour
         animator.SetBool("isWalking", false);
     }
 
-    public void Interact(string item)
+    public bool Interact(string item)
     {
         if (requestedItems.Contains(item))
         {
@@ -167,6 +168,11 @@ public class NPCInteraction : MonoBehaviour
             {
                 CompleteOrder();
             }
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 

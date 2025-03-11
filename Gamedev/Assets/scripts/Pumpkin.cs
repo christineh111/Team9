@@ -33,12 +33,13 @@ public class Pumpkin : MonoBehaviour
                         if (npcInteraction != null)
                         {
                             // give the veggie to the NPC
-                            npcInteraction.Interact("Corn");
-
-                            // hide the veggie
-                            pumpkin.SetActive(false);
-                            FarmManager.IsHolding = false;
-                            FarmManager.IsAnimationPlaying = false;
+                            if(npcInteraction.Interact("Corn"))
+                            {
+                                // hide the veggie
+                                pumpkin.SetActive(false);
+                                FarmManager.IsHolding = false;
+                                FarmManager.IsAnimationPlaying = false;
+                            }
                         }
                     }
                 }

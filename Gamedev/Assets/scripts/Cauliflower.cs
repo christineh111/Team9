@@ -33,12 +33,13 @@ public class Cauliflower : MonoBehaviour
                         if (npcInteraction != null)
                         {
                             // give the veggie to the NPC
-                            npcInteraction.Interact("Cauliflower");
-
-                            // hide the veggie
-                            cauliflower.SetActive(false);
-                            FarmManager.IsHolding = false;
-                            FarmManager.IsAnimationPlaying = false;
+                            if(npcInteraction.Interact("Cauliflower"))
+                            {
+                                // hide the veggie
+                                cauliflower.SetActive(false);
+                                FarmManager.IsHolding = false;
+                                FarmManager.IsAnimationPlaying = false;
+                            }
                         }
                     }
                 }

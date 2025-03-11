@@ -31,12 +31,13 @@ public class Broccoli : MonoBehaviour
                         if (npcInteraction != null)
                         {
                             // give the veggie to the NPC
-                            npcInteraction.Interact("Broccoli");
-
-                            // hide the veggie
-                            broccoli.SetActive(false);
-                            FarmManager.IsHolding = false;
-                            FarmManager.IsAnimationPlaying = false;
+                            if(npcInteraction.Interact("Broccoli"))
+                            {
+                                // hide the veggie
+                                broccoli.SetActive(false);
+                                FarmManager.IsHolding = false;
+                                FarmManager.IsAnimationPlaying = false;
+                            }
                         }
                     }
                 }

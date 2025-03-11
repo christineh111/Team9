@@ -33,12 +33,13 @@ public class Watermelon : MonoBehaviour
                         if (npcInteraction != null)
                         {
                             // give the veggie to the NPC
-                            npcInteraction.Interact("Sunflower");
-
-                            // hide the veggie
-                            watermelon.SetActive(false);
-                            FarmManager.IsHolding = false;
-                            FarmManager.IsAnimationPlaying = false;
+                            if(npcInteraction.Interact("Sunflower"))
+                            {
+                                // hide the veggie
+                                watermelon.SetActive(false);
+                                FarmManager.IsHolding = false;
+                                FarmManager.IsAnimationPlaying = false;
+                            }
                         }
                     }
                 }

@@ -33,12 +33,13 @@ public class Carrot : MonoBehaviour
                         if (npcInteraction != null)
                         {
                             // give the veggie to the NPC
-                            npcInteraction.Interact("Carrot");
-
-                            // hide the veggie
-                            carrot.SetActive(false);
-                            FarmManager.IsHolding = false;
-                            FarmManager.IsAnimationPlaying = false;
+                            if(npcInteraction.Interact("Carrot"))
+                            {
+                                // hide the veggie
+                                carrot.SetActive(false);
+                                FarmManager.IsHolding = false;
+                                FarmManager.IsAnimationPlaying = false;
+                            }
                         }
                     }
                 }
