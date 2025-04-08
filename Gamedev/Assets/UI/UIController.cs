@@ -55,6 +55,9 @@ public class UIController : MonoBehaviour
     private float BGVolume = 0.008f; // lower bg music
     private float BG_Pitch = 1f; // slow/fast day time music
 
+    // Light reference
+    public Light sceneLight;
+
     //for playpause button
     private bool isGamePaused = false;
 
@@ -147,6 +150,10 @@ public class UIController : MonoBehaviour
             GameBackground.style.display = DisplayStyle.None;  // Hide Main Menu
             nightUI.style.display = DisplayStyle.Flex;// Start the night
             isNightPhase = true;
+
+            // Turn off shadows
+            sceneLight.enabled = false;
+
         };
 
         // Hide the settings panel initially
@@ -433,6 +440,10 @@ public class UIController : MonoBehaviour
         BG_audioSFX.loop = true; // Enable looping
         BG_audioSFX.Play();
 
+        // Add shadows
+        sceneLight.enabled = true;
+        
+
 
         // Update Objectives labels
         currentMoneyLabel.text = currentCoin + " Coins";
@@ -496,6 +507,10 @@ public class UIController : MonoBehaviour
     {
         // Switch to night phase
         isNightPhase = true;
+        
+        // Turn off the scene light (shadows)
+        sceneLight.enabled = false;
+        
 
         // Play background music
         BG_audioSFX.clip = BGTitleAndNightSFX;
