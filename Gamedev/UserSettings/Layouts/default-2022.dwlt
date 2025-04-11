@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 2048
     height: 1068.8
   m_ShowMode: 4
-  m_Title: Game
+  m_Title: Project
   m_RootView: {fileID: 2}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -120,7 +120,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 100}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 76
+  controlID: 80
   draggingID: 0
 --- !u!114 &6
 MonoBehaviour:
@@ -249,8 +249,8 @@ MonoBehaviour:
     y: 0
     width: 234.40002
     height: 1018.80005
-  m_MinSize: {x: 275, y: 50}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 276, y: 71}
+  m_MaxSize: {x: 4001, y: 4021}
   m_ActualView: {fileID: 18}
   m_Panes:
   - {fileID: 18}
@@ -702,7 +702,7 @@ MonoBehaviour:
   m_Rotation:
     m_Target: {x: -0.0051542586, y: -0.9317394, z: 0.36354342, w: -0.014748509}
     speed: 2
-    m_Value: {x: -0.0051528513, y: -0.931485, z: 0.36344415, w: -0.014744482}
+    m_Value: {x: 0.0051542586, y: 0.93173945, z: -0.36354342, w: 0.01474851}
   m_Size:
     m_Target: 475.01294
     speed: 2
@@ -998,7 +998,7 @@ MonoBehaviour:
     m_SkipHidden: 1
     m_SearchArea: 1
     m_Folders:
-    - Assets/TextMesh Pro/Resources/Fonts & Materials
+    - Assets/Prefab
     m_Globs: []
     m_OriginalText: 
     m_ImportLogFlags: 0
@@ -1006,16 +1006,16 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 89
   m_LastFolders:
-  - Assets/TextMesh Pro/Resources/Fonts & Materials
+  - Assets/Prefab
   m_LastFoldersGridSize: 89
   m_LastProjectPath: C:\Users\Jess\OneDrive\Documents\Unity\Team9\Gamedev
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 564.6}
-    m_SelectedIDs: ce5c0200
-    m_LastClickedID: 154830
-    m_ExpandedIDs: 00000000a8b80000aab8000008b90000d05c020000ca9a3b
+    scrollPos: {x: 0, y: 559}
+    m_SelectedIDs: aeb90000
+    m_LastClickedID: 47534
+    m_ExpandedIDs: 00000000aeb80000b0b80000b0b90000c8b90000d0b9000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1043,7 +1043,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000a8b80000aab80000
+    m_ExpandedIDs: 00000000aeb80000b0b80000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1095,7 +1095,7 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
     m_NewAssetIndexInList: -1
-    m_ScrollPosition: {x: 0, y: 0}
+    m_ScrollPosition: {x: 0, y: 218.59998}
     m_GridSize: 89
   m_SkipHiddenPackages: 1
   m_DirectoriesAreaWidth: 194.6
@@ -1203,10 +1203,10 @@ MonoBehaviour:
     m_OverlaysVisible: 1
   m_SceneHierarchy:
     m_TreeViewState:
-      scrollPos: {x: 0, y: 223.19995}
-      m_SelectedIDs: 86b9ffff
-      m_LastClickedID: -18042
-      m_ExpandedIDs: d8b8ffff86b9ffff70bdffff94beffffa8ccffffd8ceffffe2ceffff02cfffff9cfaffff5c71000066710000
+      scrollPos: {x: 0, y: 0}
+      m_SelectedIDs: b4ba0000
+      m_LastClickedID: 0
+      m_ExpandedIDs: defaffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
