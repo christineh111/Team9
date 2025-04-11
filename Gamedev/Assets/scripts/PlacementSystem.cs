@@ -19,18 +19,22 @@ public class PlacementSystem : MonoBehaviour
     private GameObject gridVisualization;
     [SerializeField]
     private GameObject inventoryPanel;
-    public Inventory inventory; // Reference to the Inventory Manager
+    public Inventory inventory; 
     public bool isBuilding = false;
     public int itemID = -1;
     private List<GameObject> scarecrowPreviewTiles = new List<GameObject>();
-    [SerializeField] private GameObject scarecrowDefenseHighlightPrefab; // assign in Inspecto
+    [SerializeField] private GameObject scarecrowDefenseHighlightPrefab; 
 
     private Dictionary<Vector3Int, GameObject> placedObjects = new Dictionary<Vector3Int, GameObject>();
 
+    [SerializeField] private GameObject messagePopup;
+    [SerializeField] private TMPro.TextMeshProUGUI messageText;
 
     private void Start()
     {
         StopPlacement();
+
+        messagePopup.SetActive(false);
 
         // preplaced carrot plot
         Vector3 preplacedWorldPos = new Vector3(142.35f, 0f, 120.98f);
@@ -271,6 +275,13 @@ public class PlacementSystem : MonoBehaviour
         if (placedObjects.ContainsKey(gridPosition))
         {
             GameObject objectToRemove = placedObjects[gridPosition];
+
+            if (objectToRemove.name.Contains("carrot-plot-perm"))
+            {
+                ShowMessage("You cannot destroy your starter crop!");
+                return;
+            }
+
             int objectID = database.objectsData.FindIndex(obj => obj.Prefab.name == objectToRemove.name.Replace("(Clone)", "").Trim());
 
             if (objectID >= 0)
@@ -386,5 +397,21 @@ public class PlacementSystem : MonoBehaviour
         {
             inventory.SetButtonsInteractable(interactable);
         }
+    }
+
+    private void ShowMessage(string message)
+    {
+        if (messagePopup != null && messageText != null)
+        {
+            messageText.text = message;
+            messagePopup.SetActive(true);
+            StartCoroutine(HideMessageAfterSeconds(2f)); 
+        }
+    }
+
+    private IEnumerator HideMessageAfterSeconds(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        messagePopup.SetActive(false);
     }
 }
