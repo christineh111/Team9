@@ -20,9 +20,13 @@ public class PlayerAnimator : MonoBehaviour
     private Animator animator;
     private bool isHoldingSpray = false;
     public bool upgradePurchased = false;   // shop variable
+    
+    PlayerSoundEffects soundEffects;  // Reference to the PlayerSoundEffects script
+
 
     private void Awake()
     {
+        soundEffects = GetComponent<PlayerSoundEffects>();  // Get the sound effects component
         animator = GetComponent<Animator>();
 
         if (sprayBottle != null)
@@ -45,7 +49,9 @@ public class PlayerAnimator : MonoBehaviour
         {
             sprayBottle.SetActive(false);
             isHoldingSpray = false;
-            animator.SetBool(IS_HOLDING_SPRAY, false);
+            if (animator != null) {
+                animator.SetBool(IS_HOLDING_SPRAY, false);
+            }
             notPurchased = true;
         }
 
@@ -89,6 +95,7 @@ public class PlayerAnimator : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 FireBullet();
+                soundEffects.PlayPesticideSound(); // SFX
             }
         }
     }

@@ -27,9 +27,11 @@ public class PlacementSystem : MonoBehaviour
 
     private Dictionary<Vector3Int, GameObject> placedObjects = new Dictionary<Vector3Int, GameObject>();
 
+    PlayerSoundEffects soundEffects;  // Reference to the PlayerSoundEffects script
 
     private void Start()
     {
+        soundEffects = GetComponent<PlayerSoundEffects>();  // Get the sound effects component
         StopPlacement();
 
         // preplaced carrot plot
@@ -199,6 +201,8 @@ public class PlacementSystem : MonoBehaviour
             else
             {
                 StartPlacement(itemID);
+                soundEffects.PlayPlantingSound(); // SFX
+
             }
         }
     }
