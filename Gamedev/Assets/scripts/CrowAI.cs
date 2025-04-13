@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class CrowAI : MonoBehaviour
 {
+    PlayerSoundEffects soundEffects;  // Reference to the PlayerSoundEffects script
+
     public float spawnRadius = 10f;
     public float attackRange = 3f;
     public float moveSpeed = 15f;
@@ -15,10 +17,7 @@ public class CrowAI : MonoBehaviour
     private Vector3 targetOffset;
     private Animator animator;
     private bool hasPecked = false;
-    public AudioClip crowArrivalClip;
-
-    private AudioSource audioSource;
-
+    private bool hasPlayedCrowSound = false;
 
 
     private Dictionary<string, int> cropValues = new Dictionary<string, int>
@@ -30,6 +29,9 @@ public class CrowAI : MonoBehaviour
 
     private void Awake()
     {
+        if (soundEffects == null) {
+            soundEffects = FindObjectOfType<PlayerSoundEffects>(); // Get SFXs
+        }
         if (uiController == null)
         {
             uiController = FindObjectOfType<UIController>();
@@ -42,13 +44,9 @@ public class CrowAI : MonoBehaviour
 
     void Start()
     {
- 
         gameObject.SetActive(true);
         targetOffset = new Vector3(Random.Range(-3f, 3f), 0, Random.Range(-3f, 3f));
         animator = GetComponent<Animator>();
-        audioSource = GetComponent<AudioSource>();
-
-
     }
 
     void Update()
@@ -59,7 +57,7 @@ public class CrowAI : MonoBehaviour
             DeactivateCrow();
             startedDay = false;
         }
-        else if(!uiController.isNightPhase && dayProgression.currentDay == 3)
+        else if(!uiController.isNightPhase && dayProgression.currentDay == 1)
         {
             ActivateCrow();
             FindTargetCrop();
@@ -203,11 +201,6 @@ public class CrowAI : MonoBehaviour
         {
             transform.position = spawnPoint.position;
 
-            // Play arrival sound
-            if (crowArrivalClip != null && audioSource != null)
-            {
-                audioSource.PlayOneShot(crowArrivalClip);
-            }
             // health = 20;
             reactivateCrow = false;
         }
@@ -219,6 +212,7 @@ public class CrowAI : MonoBehaviour
     // crow moves away from destroyed plant
     public void OnPlantDestroyed(GameObject destroyedPlant)
     {
+        soundEffects.PlayCrowLeaveSound(); // SFX
         StartCoroutine(MoveAwayFromDestroyedPlant(destroyedPlant));
     }
 

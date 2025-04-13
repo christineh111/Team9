@@ -17,6 +17,7 @@ public class PlayerSoundEffects : MonoBehaviour {
     [SerializeField] private AudioClip purchaseItemSound;
     [SerializeField] private AudioClip crowAttackSound;
     [SerializeField] private AudioClip crowLeaveSound;
+    [SerializeField] private AudioClip clickSound;
 
 
     [Header("Volumes")]
@@ -34,6 +35,7 @@ public class PlayerSoundEffects : MonoBehaviour {
     [SerializeField] private float purchaseItemSoundVolume = 1f;
     [SerializeField] private float crowAttackSoundVolume = 1f;
     [SerializeField] private float crowLeaveSoundVolume = 1f;
+    [SerializeField] private float clickVolume = 1f;
 
 
     [Header("Trim Durations (seconds, 0 = full clip)")]
@@ -51,6 +53,7 @@ public class PlayerSoundEffects : MonoBehaviour {
     [SerializeField] private float purchaseItemTrim = 0f;
     [SerializeField] private float crowAttackTrim = 1f;
     [SerializeField] private float crowLeaveTrim = 1f;
+    [SerializeField] private float clickTrim = 1f;
 
     [Header("Playback Speeds (1 = normal, 2 = double speed, 0.5 = half speed)")]
     [SerializeField] private float wateringPitch = 2f;
@@ -67,6 +70,7 @@ public class PlayerSoundEffects : MonoBehaviour {
     [SerializeField] private float purchaseItemPitch = 1f;
     [SerializeField] private float crowAttackPitch = 1f;
     [SerializeField] private float crowLeavePitch = 1f;
+    [SerializeField] private float clickPitch = 1f;
 
 
     [SerializeField] private AudioSource audioSource;
@@ -131,6 +135,10 @@ public class PlayerSoundEffects : MonoBehaviour {
 
     public void PlayCrowLeaveSound() {
         PlayClippedSound(crowLeaveSound, crowLeaveSoundVolume, crowLeaveTrim, crowLeavePitch);
+    }
+
+    public void PlayClickSound() {
+        PlayClippedSound(clickSound, clickVolume, clickTrim, clickPitch);
     }
 
     private void PlayClippedSound(AudioClip clip, float volume, float trimLength, float pitch) {

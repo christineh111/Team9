@@ -60,13 +60,15 @@ public class UIController : MonoBehaviour
     public UnityEngine.UIElements.Button SettingsButton;
 
     // sound effects
+    PlayerSoundEffects soundEffects;  // Reference to the PlayerSoundEffects script
     public AudioSource BG_audioSFX;
     public AudioClip BGTitleAndNightSFX;
     public AudioClip BGDaySFX;
 
     //sound effect adjustments
-    private float BGVolume = 0.008f; // lower bg music
+    private float BGVolume = 0.007f; // lower bg music
     private float BG_Pitch = 1f; // slow/fast day time music
+    private float BG_Pitch2 = 2f; // slow/fast day time music
 
     //for playpause button
     private bool isGamePaused = false;
@@ -92,7 +94,7 @@ public class UIController : MonoBehaviour
 
     //for Progress bar for Phases---------------------------------------------------------------------------------
     public ProgressBar phaseTimer;
-    private float timerDuration = 100f; //5min
+    private float timerDuration = 120f;
     private float elapsedTime = 0f;
     private bool isTimerRunning = true;
 
@@ -128,8 +130,20 @@ public class UIController : MonoBehaviour
     public Vector2 hotspot = Vector2.zero;
     public CursorMode cursorMode = CursorMode.Auto;
 
+    // audio speed up
+    private bool hasScheduledPitchChange = false;
+    private IEnumerator SpeedUpMusicAfterDelay(float delay) {
+        yield return new WaitForSeconds(delay);
+        BG_audioSFX.pitch = BG_Pitch2; // speed up music after delay
+    }
+
+
     private void Awake()
     {
+        if (soundEffects == null) {
+            soundEffects = FindObjectOfType<PlayerSoundEffects>(); // Get SFXs
+        }
+
         if (Instance != null && Instance != this)
         {
             Debug.Log("Destroying duplicate UIController");
@@ -364,12 +378,14 @@ public class UIController : MonoBehaviour
         if (Shop != null)
         {
             Shop.clicked += OnShopButtonClicked;
+
         }
 
         Inventory = ui.Q<UnityEngine.UIElements.Button>("Inventory");
         if (Inventory != null)
         {
             Inventory.clicked += OnInventoryButtonClicked;
+
         }
 
 
@@ -378,18 +394,21 @@ public class UIController : MonoBehaviour
         {
             NewDay.clicked -= OnNewDayButtonClicked;
             NewDay.clicked += OnNewDayButtonClicked;
+
         }
 
         PlayPause = ui.Q<UnityEngine.UIElements.Button>("PlayPause");
         if (PlayPause != null)
         {
             PlayPause.clicked += OnPlayPauseButtonClicked;
+
         }
 
         Settings = ui.Q<UnityEngine.UIElements.Button>("Settings");
         if (Settings != null)
         {
             Settings.clicked += OnSettingsButtonClicked;
+
 
         }
 
@@ -404,6 +423,7 @@ public class UIController : MonoBehaviour
         if (TutorialButton != null)
         {
             TutorialButton.clicked += OnTutorialButtonClicked;
+
         }
         else
         {
@@ -414,6 +434,7 @@ public class UIController : MonoBehaviour
         if (TutorialButton != null)
         {
             NTutorialButton.clicked += OnTutorialButtonClicked;
+
         }
         else
         {
@@ -436,6 +457,26 @@ public class UIController : MonoBehaviour
         if (isTimerRunning && !isGamePaused && !isNightPhase)
         {
             elapsedTime += Time.deltaTime;
+            
+            // used to speed up pitch
+            float remainingTime = timerDuration - elapsedTime;
+            phaseTimer.value = Mathf.Clamp01(elapsedTime / timerDuration);
+
+            if (!hasScheduledPitchChange && remainingTime <= 32.5f) {
+                StartCoroutine(SpeedUpMusicAfterDelay(2.5f));
+                hasScheduledPitchChange = true;
+            }
+
+            // when timer finishes
+            if (elapsedTime >= timerDuration) {
+                
+                // Reset pitch after the day phase ends
+                BG_audioSFX.pitch = BG_Pitch;
+                isTimerRunning = false; // Stop the timer
+                //elapsedTime = 0f;
+                //phaseTimer.value = 0f;
+            }
+
 
             // ProgressBar value changing
             if (phaseTimer != null)
@@ -564,8 +605,12 @@ public class UIController : MonoBehaviour
     {
 
         shopPanel.SetActive(true);
+<<<<<<< Updated upstream
         // Force the shop buttons to reflect current coin amount
         FindObjectOfType<ShopManager>()?.CheckPurchaseable();
+=======
+        soundEffects.PlayClickSound(); // Click SFX
+>>>>>>> Stashed changes
 
     }
 
@@ -573,6 +618,7 @@ public class UIController : MonoBehaviour
     {
 
         inventoryPanel.SetActive(true);
+        soundEffects.PlayClickSound(); // Click SFX
 
     }
 
@@ -580,7 +626,8 @@ public class UIController : MonoBehaviour
     //confirm quit and then quit
     private void OnQuitButtonClicked()
     {
-    
+        soundEffects.PlayClickSound(); // Click SFX
+
         var dialogBox = new UnityEngine.UIElements.Box();
         dialogBox.style.position = Position.Absolute;
         dialogBox.style.left = 0;
@@ -653,6 +700,8 @@ public class UIController : MonoBehaviour
     //NEXT DAY PHASE 
     private void OnNewDayButtonClicked()
     {
+        soundEffects.PlayClickSound(); // Click SFX
+
         dayCount++;
         isNightPhase = false;
         elapsedTime = 0f;
@@ -751,6 +800,8 @@ public class UIController : MonoBehaviour
 
     private void OnObjectiveButtonClicked()
     {
+        soundEffects.PlayClickSound(); // Click SFX
+
         objectivesScreen.style.display = DisplayStyle.None;  // Hide Objectives
         dayUI.style.display = DisplayStyle.Flex; // Show the Day UI
 
@@ -821,6 +872,8 @@ public class UIController : MonoBehaviour
 
         void OnContinueButtonClicked()
         {
+            soundEffects.PlayClickSound(); // Click SFX
+
             endDayScreen.style.display = DisplayStyle.None;
 
             if (goalMet)
@@ -853,6 +906,8 @@ public class UIController : MonoBehaviour
     //PAUSE AND PLAY GAME
     private void OnPlayPauseButtonClicked()
     {
+        soundEffects.PlayClickSound(); // Click SFX
+
         Debug.Log("PlayPause Button Clicked");
 
         isGamePaused = !isGamePaused;
@@ -893,6 +948,8 @@ public class UIController : MonoBehaviour
     {
         if (settingsPanel.style.display == DisplayStyle.None)
         {
+            soundEffects.PlayClickSound(); // Click SFX
+
             settingsPanel.style.display = DisplayStyle.Flex;
             settingsPanel.BringToFront(); // Ensures it appears above everything
         }
@@ -908,6 +965,8 @@ public class UIController : MonoBehaviour
 
         if (tutorialPanel.style.display == DisplayStyle.None)
         {
+            soundEffects.PlayClickSound(); // Click SFX
+
             tutorialPanel.style.display = DisplayStyle.Flex;
             tutorialPanel.BringToFront(); // Ensures it appears above everything
         }
@@ -973,6 +1032,8 @@ public class UIController : MonoBehaviour
 
     public void RestartGame()
     {
+        soundEffects.PlayClickSound(); // Click SFX
+
         // Hide all UI panels
         if (shopPanel != null) shopPanel.SetActive(false);
         if (inventoryPanel != null) inventoryPanel.SetActive(false);
