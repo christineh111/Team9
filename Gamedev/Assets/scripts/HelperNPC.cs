@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
+using System.Diagnostics;
 
 public enum SlimeAnimationSt { Idle, Walk, Jump, Attack, Damage }
 
@@ -10,7 +10,7 @@ public class HelperNPC : MonoBehaviour
 {
     public Face faces;
     public GameObject SmileBody;
-    public SlimeAnimationSt currentState;
+    public SlimeAnimationState currentState;
 
     public Animator animator;
     public NavMeshAgent agent;
@@ -20,15 +20,8 @@ public class HelperNPC : MonoBehaviour
     private Material faceMaterial;
     private Vector3 originPos;
 
-    [SerializeField] private TMP_Text messageText;
-    [SerializeField] private GameObject messageBubbleBG;
-
-    private Coroutine messageRoutine;
-    private Coroutine moveRoutine;
-
-    [SerializeField] private Transform messageCanvas;
-    private Camera mainCam;
-
+    //public enum WalkType { ToOrigin }
+    //private WalkType walkType;
     public bool atCrop = false;
     public UIController uiController;
 
@@ -42,11 +35,7 @@ public class HelperNPC : MonoBehaviour
     private bool waitToResp = false;
 
     public bool playerPurchased = true; // variable for the store
-    public bool hasStartedNightMove = false;
-    public bool hasAnnouncedTonight = false;
-
     private bool firstNight = true;
-    private bool isInitialized = false;
 
     private Dictionary<string, int> cropValues = new Dictionary<string, int>
     {
@@ -55,146 +44,42 @@ public class HelperNPC : MonoBehaviour
     };
     public GameObject targetCrop;
 
-    public void Initialize(Transform spawn, Face faceData, GameObject smileBody, UIController controller)
-    {
-        if (isInitialized) return;
-
-        spawnPoint = spawn;
-        faces = faceData;
-        SmileBody = smileBody;
-        uiController = controller;
-
-        if (SmileBody != null)
-        {
-            Renderer rend = SmileBody.GetComponent<Renderer>();
-            if (rend != null && rend.materials.Length > 0)
-            {
-                faceMaterial = rend.materials.Length > 1 ? rend.materials[1] : rend.materials[0];
-            }
-        }
-
-        if (agent == null)
-        {
-            agent = GetComponent<NavMeshAgent>();
-        }
-
-        if (spawnPoint != null)
-        {
-            originPos = spawnPoint.position;
-        }
-
-        isInitialized = true;
-    }
-
     private void Awake()
     {
-        // Find the UI controller if not already assigned
         if (uiController == null)
         {
             uiController = FindObjectOfType<UIController>();
-        }
-
-        mainCam = Camera.main;
-
-        if (messageText == null)
-        {
-            messageText = GetComponentInChildren<TMP_Text>(true); // true includes inactive
-            if (messageText != null)
-            {
-                messageText.gameObject.SetActive(false);
-            }
-        }
-
-        // Setup NavMeshAgent
-        if (agent == null)
-        {
-            agent = GetComponent<NavMeshAgent>();
         }
     }
 
     void Start()
     {
-        // Make sure spawnPoint is available
-        if (spawnPoint != null)
-        {
-            originPos = spawnPoint.position;
-        }
+        originPos = spawnPoint.position;
+        faceMaterial = SmileBody.GetComponent<Renderer>().materials[1];
+        //walkType = WalkType.ToOrigin;
 
-        if (SmileBody != null)
+        // Check NavMeshAgent
+        if (agent == null)
         {
-            Renderer rend = SmileBody.GetComponent<Renderer>();
-            if (rend != null && rend.materials.Length > 1)
-            {
-                faceMaterial = rend.materials[1];
-            }
-            else if (rend != null && rend.materials.Length > 0)
-            {
-                faceMaterial = rend.materials[0];
-            }
-        }
-
-        if (messageBubbleBG == null)
-        {
-            messageBubbleBG = transform.Find("MessageCanvas/MessageBubble")?.gameObject;
-            if (messageBubbleBG == null)
-            {
-                //Debug.LogError("MessageBubbleBG not found!");
-            }
-        }
-
-        if (messageCanvas == null)
-        {
-            messageCanvas = transform.Find("MessageCanvas")?.transform;
-            if (messageCanvas == null)
-            {
-                //Debug.LogError("MessageCanvas not found!");
-            }
+            agent = GetComponent<NavMeshAgent>();
         }
     }
 
     void Update()
     {
-        if (uiController == null || agent == null || faceMaterial == null)
+        if (uiController.IsNightPhase || !playerPurchased || waitToResp)
         {
-            if (uiController == null) uiController = FindObjectOfType<UIController>();
-            if (agent == null) agent = GetComponent<NavMeshAgent>();
-
-            if (SmileBody != null && faceMaterial == null)
-            {
-                Renderer rend = SmileBody.GetComponent<Renderer>();
-                if (rend != null && rend.materials.Length > 0)
-                {
-                    faceMaterial = rend.materials.Length > 1 ? rend.materials[1] : rend.materials[0];
-                }
-            }
-
-            if (uiController == null || agent == null || faceMaterial == null)
-            {
-                return;
-            }
-        }
-
-        if (uiController.IsNightPhase || !playerPurchased || (waitToResp && !isRespawning))
-        {
-            // Cancel any active movement routines
-            //if (moveRoutine != null)
-            //{
-            //    StopCoroutine(moveRoutine);
-            //    moveRoutine = null;
-            //}
+            UnityEngine.Debug.Log("in looking for crop");
 
             transform.position = hiddenPosition; // Move in house
             toOrigin = false;
         }
-        else if (!toOrigin)
+        else if(!toOrigin)
         {
-            // Make sure we have the origin position
-            if (spawnPoint != null)
-            {
-                originPos = spawnPoint.position;
-                agent.Warp(originPos); // Move to house
-                toOrigin = true;
-            }
+            UnityEngine.Debug.Log("in not to origin");
+
+            agent.Warp(originPos); // Move to house
+            toOrigin = true;
         }
 
         if (!uiController.IsNightPhase)
@@ -202,68 +87,53 @@ public class HelperNPC : MonoBehaviour
             // Finds target crop
             if (targetCrop == null || atCrop == false)
             {
+                UnityEngine.Debug.Log("in looking for crop");
                 FindTargetCrop();
             }
 
             // Move towards the target crop
-            if (currentState == SlimeAnimationSt.Walk && !isMovingAway && targetCrop != null)
+            if (currentState == SlimeAnimationState.Walk && !isMovingAway && targetCrop != null)
             {
                 MoveToTargetCrop();
             }
         }
 
-        // Handle animation state transitions
-        HandleAnimationStates();
-    }
-
-    void HandleAnimationStates()
-    {
-        // Skip if animator is not available
-        if (animator == null) return;
-
         // Handle animation transitions
         switch (currentState)
         {
-            case SlimeAnimationSt.Idle:
+            case SlimeAnimationState.Idle:
                 if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")) return;
                 StopAgent();
-                if (faces != null) SetFace(faces.Idleface);
-                animator.SetFloat("Speed", 0);
+                SetFace(faces.Idleface);
                 break;
 
-            case SlimeAnimationSt.Walk:
+            case SlimeAnimationState.Walk:
                 if (animator.GetCurrentAnimatorStateInfo(0).IsName("Walk")) return;
-                if (agent != null)
-                {
-                    agent.isStopped = false;
-                    agent.updateRotation = true;
-                }
-                if (faces != null) SetFace(faces.WalkFace);
-                animator.SetFloat("Speed", 1);
+                agent.isStopped = false;
+                agent.updateRotation = true;
+                SetFace(faces.WalkFace);
                 break;
 
-            case SlimeAnimationSt.Jump:
+            case SlimeAnimationState.Jump:
                 if (animator.GetCurrentAnimatorStateInfo(0).IsName("Jump")) return;
                 StopAgent();
-                if (faces != null) SetFace(faces.jumpFace);
+                SetFace(faces.jumpFace);
                 animator.SetTrigger("Jump");
                 break;
 
-            case SlimeAnimationSt.Attack:
+            case SlimeAnimationState.Attack:
                 if (animator.GetCurrentAnimatorStateInfo(0).IsName("Attack")) return;
                 StopAgent();
-                if (faces != null) SetFace(faces.attackFace);
+                SetFace(faces.attackFace);
                 animator.SetTrigger("Attack");
                 break;
 
-            case SlimeAnimationSt.Damage:
-                if (animator.GetCurrentAnimatorStateInfo(0).IsName("Damage0") ||
-                    animator.GetCurrentAnimatorStateInfo(0).IsName("Damage1") ||
-                    animator.GetCurrentAnimatorStateInfo(0).IsName("Damage2")) return;
+            case SlimeAnimationState.Damage:
+                if (animator.GetCurrentAnimatorStateInfo(0).IsName("Damage0") || animator.GetCurrentAnimatorStateInfo(0).IsName("Damage1") || animator.GetCurrentAnimatorStateInfo(0).IsName("Damage2")) return;
                 StopAgent();
                 animator.SetTrigger("Damage");
                 animator.SetInteger("DamageType", damType);
-                if (faces != null) SetFace(faces.damageFace);
+                SetFace(faces.damageFace);
                 break;
         }
     }
@@ -380,9 +250,7 @@ public class HelperNPC : MonoBehaviour
 
     void MoveToTargetCrop()
     {
-        if (targetCrop == null) return;
-
-        try
+        if (targetCrop != null)
         {
             // Ignore y position
             Vector3 targetPosition = targetCrop.transform.position;
@@ -393,7 +261,7 @@ public class HelperNPC : MonoBehaviour
 
             // Gets direction of target
             Vector3 direction = targetPosition - transform.position;
-            direction.y = 0;
+            direction.y = 0; 
 
             // Faces target
             if (direction.sqrMagnitude > 0.1f)
@@ -404,16 +272,11 @@ public class HelperNPC : MonoBehaviour
 
             // Check if helper is at the crop
             if (Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
-                                new Vector3(targetCrop.transform.position.x, 0, targetCrop.transform.position.z)) < 1f)
+                                 new Vector3(targetCrop.transform.position.x, 0, targetCrop.transform.position.z)) < 1f)
             {
                 atCrop = true;
                 InteractWithCrop();
             }
-        }
-        catch (System.Exception e)
-        {
-            Debug.Log(e);
-            targetCrop = null;
         }
     }
 
@@ -421,113 +284,77 @@ public class HelperNPC : MonoBehaviour
     {
         if (targetCrop == null || isMovingAway) return;
 
-            System.Type scriptType = System.Type.GetType(targetScript);
+        System.Type scriptType = System.Type.GetType(targetScript);
 
-            if (scriptType != null)
+        if (scriptType != null)
+        {
+            Component cropGrowthScript = targetCrop.GetComponent(scriptType);
+            if (cropGrowthScript != null)
             {
-                Component cropGrowthScript = targetCrop.GetComponent(scriptType);
-                if (cropGrowthScript != null)
+                var method = scriptType.GetMethod("StartGrowthByHelper");
+                if (method != null)
                 {
-                    var method = scriptType.GetMethod("StartGrowthByHelper");
-                    if (method != null)
+                    method.Invoke(cropGrowthScript, null); 
+                }
+
+                currentState = SlimeAnimationState.Idle;
+                animator.SetFloat("Speed", 0); 
+
+                var phaseProperty = scriptType.GetProperty("growingPhase");
+                int currentGrowthPhase = 0;
+
+                // checks growth phase is interactable
+                if (phaseProperty != null)
+                {
+                    currentGrowthPhase = (int)phaseProperty.GetValue(cropGrowthScript);
+                }
+
+                if (currentGrowthPhase == 2) return;
+
+                interactionCount++; 
+
+                // allows the helper to interact with 3 crops at a time
+                if (interactionCount >= 3)
+                {
+                    interactionCount = 0; 
+                    StartCoroutine(WaitAndReturnToSpawn());
+                } 
+                else
+                { 
+                    // farming interactions
+                    switch (currentGrowthPhase)
                     {
-                        method.Invoke(cropGrowthScript, null);
-                    }
-
-                    currentState = SlimeAnimationSt.Idle;
-                    animator.SetFloat("Speed", 0);
-
-                    var phaseProperty = scriptType.GetProperty("growingPhase");
-                    int currentGrowthPhase = 0;
-
-                    // checks growth phase is interactable
-                    if (phaseProperty != null)
-                    {
-                        currentGrowthPhase = (int)phaseProperty.GetValue(cropGrowthScript);
-                    }
-
-                    if (currentGrowthPhase == 2) return;
-
-                    interactionCount++;
-
-                    // allows the helper to interact with 3 crops at a time
-                    if (interactionCount >= 3)
-                    {
-                        interactionCount = 0;
-                        StartCoroutine(WaitAndReturnToSpawn());
-                    }
-                    else
-                    {
-                        // farming interactions
-                        switch (currentGrowthPhase)
-                        {
-                            case 0:
-                                StartCoroutine(WaitAndMoveAway(1.5f));
-                                break;
-                            case 1:
-                                StartCoroutine(WaitAndMoveAway(2.0f));
-                                break;
-                            default:
-                                StartCoroutine(WaitAndMoveAway(1.0f));
-                                break;
-                        }
+                        case 0:
+                            StartCoroutine(WaitAndMoveAway(1.5f));
+                            break;
+                        case 1:
+                            StartCoroutine(WaitAndMoveAway(2.0f));
+                            break;
+                        default:
+                            StartCoroutine(WaitAndMoveAway(1.0f));
+                            break;
                     }
                 }
             }
+        }
     }
 
     // returns helper back to house
     IEnumerator WaitAndReturnToSpawn()
     {
-        currentState = SlimeAnimationSt.Jump;
+        currentState = SlimeAnimationState.Jump; 
         yield return new WaitForSeconds(1.0f);
-
-        if (uiController != null && uiController.IsNightPhase)
-        {
-            yield break;
-        }
-
-        moveRoutine = StartCoroutine(MoveToSpawn());
+        yield return StartCoroutine(MoveToSpawn());
     }
 
-    private bool isRespawning = false;
-
-IEnumerator MoveToSpawn()
-{
-    if (spawnPoint == null)
-    {
-        yield break;
-    }
-
-    currentState = SlimeAnimationSt.Walk;
-    isMovingAway = true;
-    atCrop = false;
-
-    // faces the direction of the house
-    Vector3 directionToSpawn = (spawnPoint.position - transform.position).normalized;
-    if (directionToSpawn != Vector3.zero)
-    {
-        Quaternion targetRotation = Quaternion.LookRotation(directionToSpawn);
-        transform.rotation = targetRotation;
-    }
-
-    yield return StartCoroutine(MoveNPCToPosition(spawnPoint.position));
-
-    // resting time for helper to respawn
-    waitToResp = true;
-    yield return new WaitForSeconds(6f);
-    waitToResp = false;
-}
-
-IEnumerator MoveToSpawnNight()
+    IEnumerator MoveToSpawn()
     {
         if (spawnPoint == null)
         {
-            Debug.LogError("SpawnPoint is null in MoveToSpawnNight!");
-            yield break;
+            yield break; 
         }
 
-        currentState = SlimeAnimationSt.Walk;
+        currentState = SlimeAnimationState.Walk;
         isMovingAway = true;
         atCrop = false;
 
@@ -536,48 +363,31 @@ IEnumerator MoveToSpawnNight()
         if (directionToSpawn != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(directionToSpawn);
-            transform.rotation = targetRotation;
+            transform.rotation = targetRotation; 
         }
 
         yield return StartCoroutine(MoveNPCToPosition(spawnPoint.position));
-        transform.position = hiddenPosition;
+
+        // resting time for helper to respawn
+        waitToResp = true;
+        yield return new WaitForSeconds(6f);
+        waitToResp = false;
     }
 
     // moves helper away from crop
     IEnumerator WaitAndMoveAway(float waitTime)
     {
-        currentState = SlimeAnimationSt.Jump;
-        float elapsedTime = 0f;
-
-        while (elapsedTime < waitTime)
-        {
-            // If UI controller becomes null during wait, exit
-            if (uiController == null)
-            {
-                uiController = FindObjectOfType<UIController>();
-                if (uiController == null)
-                {
-                    yield break;
-                }
-            }
-
-            if (uiController.IsNightPhase)
-            {
-                yield break;
-            }
-
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-
+        currentState = SlimeAnimationState.Jump;
+        yield return new WaitForSeconds(waitTime);
         MoveAwayFromCrop();
     }
 
+   
     void MoveAwayFromCrop()
     {
         if (targetCrop == null) return;
 
-        currentState = SlimeAnimationSt.Walk;
+        currentState = SlimeAnimationState.Walk;
         isMovingAway = true;
         atCrop = false;
 
@@ -589,33 +399,18 @@ IEnumerator MoveToSpawnNight()
         // finds new target
         Vector3 targetPosition = transform.position + moveDirection * moveDistance;
 
-        moveRoutine = StartCoroutine(MoveNPCToPosition(targetPosition));
+        StartCoroutine(MoveNPCToPosition(targetPosition));
     }
 
     IEnumerator MoveNPCToPosition(Vector3 targetPosition)
     {
-        float duration = 5f;
+        float duration = 5f; 
         Vector3 startPosition = transform.position;
         float timeElapsed = 0f;
 
         // moves the helper to target
         while (timeElapsed < duration)
         {
-            // If UI controller becomes null during movement, exit
-            if (uiController == null)
-            {
-                uiController = FindObjectOfType<UIController>();
-                if (uiController == null)
-                {
-                    yield break;
-                }
-            }
-
-            if (uiController.IsNightPhase)
-            {
-                yield break;
-            }
-
             transform.position = Vector3.Lerp(startPosition, targetPosition, timeElapsed / duration);
             timeElapsed += Time.deltaTime;
             yield return null;
@@ -627,90 +422,16 @@ IEnumerator MoveToSpawnNight()
         targetCrop = null;
     }
 
-    IEnumerator MoveInAtNight()
-    {
-        // Start walking from hidden position
-        transform.position = hiddenPosition;
-
-        yield return new WaitForSeconds(0.5f); // slight delay if you want
-
-        currentState = SlimeAnimationSt.Walk;
-        animator.SetFloat("Speed", 1f);
-        isMovingAway = false;
-
-        Vector3 targetPosition = originPos;
-
-        float speed = 3f;
-        while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
-
-            // Face movement direction
-            Vector3 direction = (targetPosition - transform.position).normalized;
-            if (direction != Vector3.zero)
-            {
-                Quaternion rotation = Quaternion.LookRotation(direction);
-                transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * 5f);
-            }
-
-            yield return null;
-        }
-
-        // Stop at destination
-        transform.position = targetPosition;
-        //currentState = SlimeAnimationSt.Idle;
-        animator.SetFloat("Speed", 0);
-
-        transform.position = hiddenPosition;
-        toOrigin = false;
-    }
-
-    public void ShowHelperMessage(string message, float duration)
-    {
-        if (messageText == null || messageBubbleBG == null)
-        {
-            return;
-        }
-
-        if (messageRoutine != null) StopCoroutine(messageRoutine);
-        messageRoutine = StartCoroutine(ShowHelperMessageRoutine(message, duration));
-    }
-
-    private IEnumerator ShowHelperMessageRoutine(string message, float duration)
-    {
-        messageText.text = message;
-        messageText.gameObject.SetActive(true);
-        messageBubbleBG.SetActive(true);
-        yield return new WaitForSeconds(duration);
-
-        // Check if objects still exist before trying to hide them
-        if (messageText != null && messageText.gameObject != null)
-            messageText.gameObject.SetActive(false);
-
-        if (messageBubbleBG != null)
-            messageBubbleBG.SetActive(false);
-    }
-
     private void StopAgent()
     {
-        if (agent != null)
-        {
-            agent.isStopped = true;
-            agent.updateRotation = false;
-        }
-
-        if (animator != null)
-        {
-            animator.SetFloat("Speed", 0);
-        }
+        agent.isStopped = true;
+        animator.SetFloat("Speed", 0);
+        agent.updateRotation = false;
     }
 
     void SetFace(Texture tex)
     {
-        if (faceMaterial != null && tex != null)
-        {
-            faceMaterial.SetTexture("_MainTex", tex);
-        }
+        faceMaterial.SetTexture("_MainTex", tex);
     }
 
     // Animation Event
@@ -722,81 +443,46 @@ IEnumerator MoveToSpawnNight()
             float distanceOrg = Vector3.Distance(transform.position, originPos);
             if (distanceOrg > 1f)
             {
-                currentState = SlimeAnimationSt.Walk;
+                //walkType = WalkType.ToOrigin;
+                currentState = SlimeAnimationState.Walk;
             }
-            else currentState = SlimeAnimationSt.Idle;
+            else currentState = SlimeAnimationState.Idle;
         }
 
         if (message.Equals("AnimationAttackEnded"))
         {
-            currentState = SlimeAnimationSt.Idle;
+            currentState = SlimeAnimationState.Idle;
         }
 
         if (message.Equals("AnimationJumpEnded"))
         {
-            currentState = SlimeAnimationSt.Idle;
+            currentState = SlimeAnimationState.Idle;
         }
     }
 
     void OnAnimatorMove()
     {
-        if (animator == null || agent == null) return;
-
-        try
-        {
-            // Apply root motion to NPC
-            Vector3 position = animator.rootPosition;
-            position.y = agent.nextPosition.y;
-            transform.position = position;
-            agent.nextPosition = transform.position;
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError("Error in OnAnimatorMove: " + e.Message);
-        }
+        // Apply root motion to NPC
+        Vector3 position = animator.rootPosition;
+        position.y = agent.nextPosition.y;
+        transform.position = position;
+        agent.nextPosition = transform.position;
     }
 
     public void ResetHelper(bool state)
     {
         playerPurchased = state;
         firstNight = true;
-
-        // Clear any running coroutines
-        if (moveRoutine != null)
-        {
-            StopCoroutine(moveRoutine);
-            moveRoutine = null;
-        }
-
-        if (messageRoutine != null)
-        {
-            StopCoroutine(messageRoutine);
-            messageRoutine = null;
-        }
     }
 
-    private void LateUpdate()
-    {
-        if (messageCanvas != null && mainCam != null)
-        {
-            // Flip the canvas toward the camera only on Y axis
-            Vector3 lookDirection = mainCam.transform.forward;
-            lookDirection.y = 0f; // Optional: keeps canvas upright
-            messageCanvas.LookAt(mainCam.transform);
-            messageCanvas.Rotate(0, 180, 0); // Flip it around after look
-        }
-    }
 
     public void ChangeFirstNight(bool state)
     {
-        Debug.Log("going into first night: " + state);
         firstNight = state;
     }
 
-    // OnDestroy to clean up any resources
-    private void OnDestroy()
+    public void ChangePlayerPurchased(bool state)
     {
-        // Stop all coroutines
-        StopAllCoroutines();
+        playerPurchased = state;
     }
 }

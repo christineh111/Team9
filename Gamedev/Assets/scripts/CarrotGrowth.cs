@@ -376,12 +376,15 @@ public class CarrotGrowth : MonoBehaviour
     // Reset the plot after harvestingd
     private void ResetPlot()
     {
+        harvestGrowth = false;
         plantStem.SetActive(false);
         halfPlant.SetActive(false);
         fullPlant.SetActive(false);
         progressCanvas.gameObject.SetActive(false);
         progressCircle.fillAmount = 0f;
         plantActive = false;
+        growing = false;
+        growingPhase = 0;
     }
 
     // Fly interactions
