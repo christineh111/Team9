@@ -68,7 +68,6 @@ public class UIController : MonoBehaviour
     //sound effect adjustments
     private float BGVolume = 0.007f; // lower bg music
     private float BG_Pitch = 1f; // slow/fast day time music
-    private float BG_Pitch2 = 2f; // slow/fast day time music
 
     //for playpause button
     private bool isGamePaused = false;
@@ -129,13 +128,6 @@ public class UIController : MonoBehaviour
     public Texture2D bigCursor;
     public Vector2 hotspot = Vector2.zero;
     public CursorMode cursorMode = CursorMode.Auto;
-
-    // audio speed up
-    private bool hasScheduledPitchChange = false;
-    private IEnumerator SpeedUpMusicAfterDelay(float delay) {
-        yield return new WaitForSeconds(delay);
-        BG_audioSFX.pitch = BG_Pitch2; // speed up music after delay
-    }
 
 
     private void Awake()
