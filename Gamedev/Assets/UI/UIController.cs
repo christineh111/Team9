@@ -606,8 +606,12 @@ public class UIController : MonoBehaviour
 
         shopPanel.SetActive(true);
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         // Force the shop buttons to reflect current coin amount
         FindObjectOfType<ShopManager>()?.CheckPurchaseable();
+=======
+        soundEffects.PlayClickSound(); // Click SFX
+>>>>>>> Stashed changes
 =======
         soundEffects.PlayClickSound(); // Click SFX
 >>>>>>> Stashed changes
