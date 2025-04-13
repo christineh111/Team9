@@ -53,6 +53,7 @@ public class FlyAI : MonoBehaviour
         {
             ActivateFly();
             FindTargetCrop();
+            StartCoroutine(RespawnFlyDelay(30f));
             MoveTowardsTarget();
         }
     }
@@ -169,6 +170,11 @@ public class FlyAI : MonoBehaviour
             fly.GetComponent<Renderer>().enabled = false;
             fly.GetComponent<Collider>().enabled = false;
         }
+    }
+
+    private IEnumerator RespawnFlyDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
     }
 
     // Show fly
